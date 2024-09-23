@@ -3,6 +3,10 @@ use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
 
+async fn load_data(value: i32) -> Result<i32, i32> {
+    Err(value + 10)
+}
+
 #[component]
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
@@ -52,8 +56,12 @@ fn HomePage() -> impl IntoView {
 
 #[component]
 fn UserProfile() -> impl IntoView {
+    let (user_id, _) = create_signal(45); // let's pretend we got user id from url
+    let data = create_blocking_resource(user_id, |id| async move { load_data(id).await });
+
     view! {
-        <Show when=move || false
+        <Transition>
+        <Show when=move || !matches!(data.get(), Some(Err(_)))
         fallback=||{
             let mut outside_errors = Errors::default();
             outside_errors.insert_with_default_key(AppError::NotFound);
@@ -63,5 +71,6 @@ fn UserProfile() -> impl IntoView {
         >
         <h1>"Nice user profile"</h1>
         </Show>
+        </Transition>
     }
 }
