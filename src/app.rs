@@ -52,10 +52,16 @@ fn HomePage() -> impl IntoView {
 
 #[component]
 fn UserProfile() -> impl IntoView {
-    #[cfg(feature = "ssr")]
-    leptos_axum::redirect("/some-404-page");
-
     view! {
+        <Show when=move || false
+        fallback=||{
+            let mut outside_errors = Errors::default();
+            outside_errors.insert_with_default_key(AppError::NotFound);
+            view!{
+                <ErrorTemplate outside_errors/>
+            }}
+        >
         <h1>"Nice user profile"</h1>
+        </Show>
     }
 }
